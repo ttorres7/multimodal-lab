@@ -79,143 +79,170 @@ ${restriccionLinea(restriccionEtica)}
 }
 
 export function construirPromptVideo(estado: EstadoApp): PiezaGenerada {
-    const { proceso, audiencia, decision, restriccionEtica, estilo } = estado;
-  
-    const prompt = `[BRIEF PARA GOOGLE VIDS · MODO AVATAR · 30 SEGUNDOS]
-  
-  Proceso real: ${proceso.trim()}
-  Audiencia: ${audiencia || "gerencia"}
-  Decisión que busco: ${decision || "aprobar la propuesta"}
-  Estilo: ${estilo || "corporativo sobrio"}
-  Idioma: español neutro latinoamericano
-  
-  [CONTEXTO TÉCNICO IMPORTANTE]
-  Voy a usar el avatar IA de Google Vids hablando a cámara, sin clips Veo de fondo. Cada escena de avatar dura 8 segundos máximo. A velocidad natural de habla en español, 8 segundos = 18 a 22 palabras EXACTAS.
-  
-  NO me des un guion continuo. Dame 4 bloques separados, uno por escena, cada uno entre 18-22 palabras. Si un bloque pasa de 22 palabras, recórtalo. La concisión es más importante que la elegancia.
-  
-  [FORMATO DE SALIDA REQUERIDO]
-  
-  ═══════════════════════════════
-  ESCENA 1 · El problema actual (0:00-0:08)
-  ═══════════════════════════════
-  
-  GUION DEL AVATAR (18-22 palabras):
-  [texto exacto que dirá el avatar]
-  
-  Conteo de palabras: [número exacto, verifica]
-  
-  TEXTO EN PANTALLA (máximo 6 palabras, español):
-  [texto superpuesto durante esta escena]
-  
-  ═══════════════════════════════
-  ESCENA 2 · La intervención IA con supervisión humana (0:08-0:16)
-  ═══════════════════════════════
-  
-  GUION DEL AVATAR (18-22 palabras):
-  [debe mencionar EXPLÍCITAMENTE quién supervisa o aprueba — no asumirlo]
-  
-  Conteo de palabras: [número exacto]
-  
-  TEXTO EN PANTALLA (máximo 6 palabras, español):
-  [texto superpuesto]
-  
-  ═══════════════════════════════
-  ESCENA 3 · El resultado medible (0:16-0:24)
-  ═══════════════════════════════
-  
-  GUION DEL AVATAR (18-22 palabras):
-  [debe incluir una métrica concreta: tiempo, costo o calidad]
-  
-  Conteo de palabras: [número exacto]
-  
-  TEXTO EN PANTALLA (máximo 6 palabras, español):
-  [la métrica como número grande, ej: "De 3 días a 4 horas"]
-  
-  ═══════════════════════════════
-  ESCENA 4 · La decisión que pido (0:24-0:30)
-  ═══════════════════════════════
-  
-  GUION DEL AVATAR (18-22 palabras):
-  [debe terminar con la decisión específica que necesito de ${audiencia || "la audiencia"}]
-  
-  Conteo de palabras: [número exacto]
-  
-  TEXTO EN PANTALLA (máximo 6 palabras, español):
-  [la decisión como pregunta o frase corta]
-  
-  ═══════════════════════════════
-  CONFIGURACIÓN SUGERIDA DEL AVATAR EN GOOGLE VIDS
-  ═══════════════════════════════
-  
-  - Tipo de avatar (hombre/mujer, edad aprox, registro):
-    [recomienda uno específico y justifica con 1 frase por qué encaja con la audiencia "${audiencia || "gerencia"}"]
-  
-  - Vestimenta sugerida:
-    [específica, sin estampados, color sólido, ej: "blusa azul marino, sin joyería visible" o "camisa celeste claro, sin corbata"]
-  
-  - Fondo sugerido:
-    [lugar concreto sobrio, ej: "oficina corporativa con ventanal desenfocado" o "fondo color neutro sólido beige"]
-  
-  - Posición en cuadro: centro
-  
-  [RESTRICCIONES GLOBALES]
-  ${restriccionLinea(restriccionEtica)}
-  - Tono ejecutivo cercano. Sin "buenos días estimados", sin "muchas gracias por su atención", sin "el futuro es ahora", sin "transformación digital".
-  - Voz IA: voz adulta neutra latinoamericana. Sin acento exagerado.
-  - Texto en pantalla SIEMPRE en español, máximo 6 palabras.
-  - Narración SIEMPRE en español neutro latinoamericano.
-  
-  ANTES DE ENTREGAR: verifica que cada guion tenga entre 18 y 22 palabras. Si alguno se pasa, recórtalo. Esto es crítico para que el video funcione en Google Vids.`;
-  
-    const criterios = [
-      "¿Cada bloque de avatar tiene entre 18 y 22 palabras (no más)?",
-      "¿La supervisión humana se nombra explícitamente en la escena 2?",
-      "¿La escena 3 tiene una métrica concreta (no genérica)?",
-      "¿La escena 4 termina pidiendo una decisión específica, no agradeciendo?",
-      "¿Todo el texto en pantalla y la narración están en español?",
-      `¿${audiencia || "Tu audiencia"} podría ${decision || "tomar la decisión"} con solo este video, sin más contexto?`,
-    ];
-  
-    return {
-      prompt,
-      criterios,
-      escenariosUso: construirEscenariosUso(estado, "video"),
-      herramienta: "Google Vids (modo avatar IA)",
-    };
-  }
+  const { proceso, audiencia, decision, restriccionEtica, estilo } = estado;
+
+  const prompt = `[BRIEF PARA GOOGLE VIDS · MODO AVATAR · 30 SEGUNDOS]
+
+Proceso real: ${proceso.trim()}
+Audiencia: ${audiencia || "gerencia"}
+Decisión que busco: ${decision || "aprobar la propuesta"}
+Estilo: ${estilo || "corporativo sobrio"}
+Idioma: español neutro latinoamericano
+
+[CONTEXTO TÉCNICO IMPORTANTE]
+Voy a usar el avatar IA de Google Vids hablando a cámara, sin clips Veo de fondo. Cada escena de avatar dura 8 segundos máximo. A velocidad natural de habla en español, 8 segundos = 18 a 22 palabras EXACTAS.
+
+NO me des un guion continuo. Dame 4 bloques separados, uno por escena, cada uno entre 18-22 palabras. Si un bloque pasa de 22 palabras, recórtalo. La concisión es más importante que la elegancia.
+
+[FORMATO DE SALIDA REQUERIDO]
+
+═══════════════════════════════
+ESCENA 1 · El problema actual (0:00-0:08)
+═══════════════════════════════
+
+GUION DEL AVATAR (18-22 palabras):
+[texto exacto que dirá el avatar]
+
+Conteo de palabras: [número exacto, verifica]
+
+TEXTO EN PANTALLA (máximo 6 palabras, español):
+[texto superpuesto durante esta escena]
+
+═══════════════════════════════
+ESCENA 2 · La intervención IA con supervisión humana (0:08-0:16)
+═══════════════════════════════
+
+GUION DEL AVATAR (18-22 palabras):
+[debe mencionar EXPLÍCITAMENTE quién supervisa o aprueba — no asumirlo]
+
+Conteo de palabras: [número exacto]
+
+TEXTO EN PANTALLA (máximo 6 palabras, español):
+[texto superpuesto]
+
+═══════════════════════════════
+ESCENA 3 · El resultado medible (0:16-0:24)
+═══════════════════════════════
+
+GUION DEL AVATAR (18-22 palabras):
+[debe incluir una métrica concreta: tiempo, costo o calidad]
+
+Conteo de palabras: [número exacto]
+
+TEXTO EN PANTALLA (máximo 6 palabras, español):
+[la métrica como número grande, ej: "De 3 días a 4 horas"]
+
+═══════════════════════════════
+ESCENA 4 · La decisión que pido (0:24-0:30)
+═══════════════════════════════
+
+GUION DEL AVATAR (18-22 palabras):
+[debe terminar con la decisión específica que necesito de ${audiencia || "la audiencia"}]
+
+Conteo de palabras: [número exacto]
+
+TEXTO EN PANTALLA (máximo 6 palabras, español):
+[la decisión como pregunta o frase corta]
+
+═══════════════════════════════
+CONFIGURACIÓN SUGERIDA DEL AVATAR EN GOOGLE VIDS
+═══════════════════════════════
+
+- Tipo de avatar (hombre/mujer, edad aprox, registro):
+  [recomienda uno específico y justifica con 1 frase por qué encaja con la audiencia "${audiencia || "gerencia"}"]
+
+- Vestimenta sugerida:
+  [específica, sin estampados, color sólido, ej: "blusa azul marino, sin joyería visible" o "camisa celeste claro, sin corbata"]
+
+- Fondo sugerido:
+  [lugar concreto sobrio, ej: "oficina corporativa con ventanal desenfocado" o "fondo color neutro sólido beige"]
+
+- Posición en cuadro: centro
+
+[RESTRICCIONES GLOBALES]
+${restriccionLinea(restriccionEtica)}
+- Tono ejecutivo cercano. Sin "buenos días estimados", sin "muchas gracias por su atención", sin "el futuro es ahora", sin "transformación digital".
+- Voz IA: voz adulta neutra latinoamericana. Sin acento exagerado.
+- Texto en pantalla SIEMPRE en español, máximo 6 palabras.
+- Narración SIEMPRE en español neutro latinoamericano.
+
+ANTES DE ENTREGAR: verifica que cada guion tenga entre 18 y 22 palabras. Si alguno se pasa, recórtalo. Esto es crítico para que el video funcione en Google Vids.`;
+
+  const criterios = [
+    "¿Cada bloque de avatar tiene entre 18 y 22 palabras (no más)?",
+    "¿La supervisión humana se nombra explícitamente en la escena 2?",
+    "¿La escena 3 tiene una métrica concreta (no genérica)?",
+    "¿La escena 4 termina pidiendo una decisión específica, no agradeciendo?",
+    "¿Todo el texto en pantalla y la narración están en español?",
+    `¿${audiencia || "Tu audiencia"} podría ${decision || "tomar la decisión"} con solo este video, sin más contexto?`,
+  ];
+
+  return {
+    prompt,
+    criterios,
+    escenariosUso: construirEscenariosUso(estado, "video"),
+    herramienta: "Google Vids (modo avatar IA)",
+  };
+}
 
 export function construirPromptVoz(estado: EstadoApp): PiezaGenerada {
   const { proceso, audiencia, decision, restriccionEtica, estilo } = estado;
 
-  const prompt = `[GUION PARA ELEVENLABS]
+  const guion = construirGuionVoz(estado);
 
-Voz sugerida: voz adulta neutra en ESPAÑOL latinoamericano, ${estilo || "tono ejecutivo cercano"}
-Estilo de entrega: pausada, articulada, sin énfasis exagerado
+  const prompt = `[INSTRUCCIONES PARA TI · NO PEGAR EN ELEVENLABS]
 
-[CONTEXTO PARA QUIEN GENERA]
-Proceso: ${proceso.trim()}
-Audiencia que escucha: ${audiencia || "gerencia"}
-Decisión que se busca: ${decision || "tomar acción"}
+ElevenLabs es un sintetizador de voz. Si pegas todo este bloque, la voz va a leer en voz alta hasta los corchetes y los títulos. Por eso hay dos partes:
 
-[TEXTO A SINTETIZAR]
+PARTE 1 · CONFIGURACIÓN — la haces a mano en el dashboard de ElevenLabs antes de pegar nada.
+PARTE 2 · TEXTO A SINTETIZAR — esto sí lo pegas en el campo de texto.
 
-${construirGuionVoz(estado)}
+═══════════════════════════════
+PARTE 1 · CONFIGURACIÓN MANUAL EN ELEVENLABS
+═══════════════════════════════
 
-[DIRECCIÓN DE INTERPRETACIÓN]
+- Voice (elige en la librería): voz adulta neutra en español latinoamericano, ${estilo || "tono ejecutivo cercano"}.
+  Para audiencia "${audiencia || "gerencia"}", prefiere una voz que se sienta cercana, no de locutor de comercial.
+- Model: Eleven Multilingual v2
+- Stability: alrededor de 50% (centro)
+- Similarity: alrededor de 75%
+- Style exaggeration: 0% (sin énfasis dramático)
+- Speaker boost: activado
+
+═══════════════════════════════
+PARTE 2 · TEXTO A SINTETIZAR
+═══════════════════════════════
+
+(Copia y pega SOLO el texto que está entre las líneas dobles abajo. Las marcas <break time="..."/> son sintaxis de ElevenLabs y se respetan literales.)
+
+────────────────────────────────
+
+${guion}
+
+────────────────────────────────
+
+═══════════════════════════════
+NOTAS PARA TI ANTES DE GENERAR
+═══════════════════════════════
+
+Contexto del mensaje (no se sintetiza, solo te ayuda a juzgar el resultado):
+- Proceso: ${proceso.trim()}
+- Audiencia que escucha: ${audiencia || "gerencia"}
+- Decisión que se busca: ${decision || "tomar acción"}
+
 ${restriccionLinea(restriccionEtica)}
-- Tono profesional pero humano. Nada de voz robótica ni de locutor de comercial.
-- Pausas naturales entre ideas. No leer corrido.
-- Sin énfasis exagerado en palabras clave. La pausa hace el énfasis.
-- Velocidad media, ligeramente más lenta de lo natural para audiencias que escuchan en segundo plano.
-- IDIOMA: ESPAÑOL neutro latinoamericano. NO inglés ni español ibérico (sin "vosotros", sin "z" pronunciada como "th").`;
+
+Después de generar:
+- Escucha el audio una vez con audífonos
+- Si una palabra clave (números, nombres, métricas) suena rara, edita el texto con la palabra escrita en letras: "doce" en vez de "12", "cuarenta por ciento" en vez de "40%"
+- Si una pausa quedó muy corta o muy larga, ajusta el tiempo del <break time="..."/>`;
 
   const criterios = [
     "¿La voz suena humana o se nota la síntesis IA en alguna palabra clave?",
     "¿Las pausas respetan el sentido del texto o cortan ideas?",
     "¿El tono se mantiene parejo o tiene picos artificiales?",
     "¿La pronunciación es claramente latinoamericana, sin sonar a doblaje ibérico?",
-    "¿Funciona si alguien lo escucha mientras hace otra cosa, o requiere atención total?",
+    "¿Los números y porcentajes se entienden bien o conviene escribirlos en letras?",
     `¿${audiencia || "Tu audiencia"} entendería el mensaje completo sin verlo escrito?`,
   ];
 
@@ -223,27 +250,63 @@ ${restriccionLinea(restriccionEtica)}
     prompt,
     criterios,
     escenariosUso: construirEscenariosUso(estado, "voz"),
-    herramienta: "ElevenLabs",
+    herramienta: "ElevenLabs (Text to Speech)",
   };
 }
 
 function construirGuionVoz(estado: EstadoApp): string {
-  const { proceso, decision } = estado;
+  const { proceso, audiencia, decision } = estado;
   const procesoLimpio = proceso.trim();
 
-  return `Hoy quiero contarte algo concreto sobre cómo trabajamos.
+  const esPlural =
+    audiencia !== "gerencia" &&
+    audiencia !== "comité directivo" &&
+    audiencia !== "";
+
+  const verContarles = esPlural ? "contarles" : "contarte";
+  const traer = esPlural ? "traer" : "traer";
+  const proponer = esPlural ? "Les propongo" : "Te propongo";
+  const pronombreObjeto = esPlural ? "les" : "te";
+
+  const cierreDecision = (() => {
+    if (!decision) return esPlural ? "Necesito una decisión hoy." : "Necesito una decisión hoy.";
+    const d = decision.toLowerCase();
+    if (d.includes("aprobar"))
+      return esPlural
+        ? "Necesito que aprueben esta propuesta."
+        : "Necesito que apruebes esta propuesta.";
+    if (d.includes("entender"))
+      return esPlural
+        ? "Necesito que entiendan el cambio antes de la próxima reunión."
+        : "Necesito que entiendas el cambio antes de la próxima reunión.";
+    if (d.includes("comprar"))
+      return esPlural
+        ? "Necesito que consideren esta solución."
+        : "Necesito que consideres esta solución.";
+    if (d.includes("capacitar"))
+      return esPlural
+        ? "Necesito que se sumen a la próxima sesión."
+        : "Necesito que te sumes a la próxima sesión.";
+    if (d.includes("vender"))
+      return esPlural
+        ? "Necesito que apoyen esta propuesta dentro del equipo."
+        : "Necesito que apoyes esta propuesta dentro del equipo.";
+    return esPlural
+      ? "Necesito que tomen una decisión hoy."
+      : "Necesito que tomes una decisión hoy.";
+  })();
+
+  return `Hoy quiero ${verContarles} algo concreto sobre cómo trabajamos.
 
 <break time="0.6s"/>
 
 ${procesoLimpio}
 
 <break time="0.8s"/>
-
-La pregunta que te traigo no es si la IA puede ayudar. Es dónde queda la supervisión humana cuando la IA entra al proceso.
-
+La pregunta que ${pronombreObjeto} quiero ${traer} no es si la inteligencia artificial puede ayudar. Es dónde queda la supervisión humana cuando la IA entra al proceso.
 <break time="0.6s"/>
 
-Te propongo que veamos juntos un punto específico, lo decidamos, y avancemos. ${decision ? `Necesito que ${decision.toLowerCase()}.` : "Necesito una decisión hoy."}`;
+${proponer} que veamos juntos un punto específico, lo decidamos, y avancemos. ${cierreDecision}`;
 }
 
 export function construirPieza(
