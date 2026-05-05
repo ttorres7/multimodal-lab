@@ -1,0 +1,88 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+}
+
+[data-tema="graphite"] {
+  --bg: #0F1012;
+  --surface: #1A1B1E;
+  --text-primary: #E8E6E1;
+  --text-secondary: #6B6A66;
+  --accent: #C8B580;
+  --border: #2A2A2C;
+}
+
+[data-tema="solar"] {
+  --bg: #F4EDDC;
+  --surface: #FBF7EC;
+  --text-primary: #1F1B12;
+  --text-secondary: #7A6F4E;
+  --accent: #E8B62C;
+  --border: #D4C9A8;
+}
+
+[data-tema="tide"] {
+  --bg: #0F1228;
+  --surface: #1A1E3D;
+  --text-primary: #DCDDF0;
+  --text-secondary: #6E70A0;
+  --accent: #5DD3E0;
+  --border: #2A2D52;
+}
+
+[data-tema="ember"] {
+  --bg: #1C1010;
+  --surface: #2B1A18;
+  --text-primary: #F0DDD2;
+  --text-secondary: #A47866;
+  --accent: #E86A3A;
+  --border: #3A2522;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
