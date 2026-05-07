@@ -48,10 +48,7 @@ interface PlantillaImagen {
   notaPedagogica: string;
 }
 
-function obtenerPlantillaImagen(tipo: TipoImagen, estado: EstadoApp): PlantillaImagen {
-  const audiencia = estado.audiencia || "la audiencia";
-  const decision = estado.decision || "tomar la decisión";
-
+function obtenerPlantillaImagen(tipo: TipoImagen): PlantillaImagen {
   if (tipo === "flujo") {
     return {
       descripcionVisual: `un DIAGRAMA DE FLUJO DE PROCESO que muestre cómo se mueve el trabajo paso a paso, de izquierda a derecha o de arriba abajo. Cada paso debe ser una caja o ícono claramente delimitado, conectado al siguiente con flechas. Marca explícitamente DÓNDE entra la IA y DÓNDE el humano supervisa, aprueba o decide. La supervisión humana NO puede ser un detalle pequeño — debe ser una caja del mismo tamaño que las demás. Composición horizontal o vertical, no circular ni abstracta.`,
@@ -123,7 +120,7 @@ export function construirPromptImagen(estado: EstadoApp): PiezaGenerada {
   const { proceso, audiencia, decision, restriccionEtica, estilo, tipoImagen } = estado;
 
   const tipoActivo: TipoImagen = tipoImagen ?? "flujo";
-  const plantilla = obtenerPlantillaImagen(tipoActivo, estado);
+  const plantilla = obtenerPlantillaImagen(tipoActivo);
   const etiquetaTipo = ETIQUETAS_TIPO[tipoActivo];
 
   const prompt = `[CONTEXTO]
