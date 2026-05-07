@@ -1,5 +1,5 @@
 import { useReducer, useEffect } from "react";
-import type { EstadoApp, CaminoMultimodal } from "./types";
+import type { EstadoApp, CaminoMultimodal, TipoImagen } from "./types";
 import { ESTADO_INICIAL } from "./types";
 import type { IdTema } from "./lib/temas";
 import ThemeSwitcher from "./components/ThemeSwitcher";
@@ -16,6 +16,7 @@ type Accion =
   | { tipo: "setDecision"; valor: string }
   | { tipo: "setRestriccion"; valor: string }
   | { tipo: "setEstilo"; valor: string }
+  | { tipo: "setTipoImagen"; valor: TipoImagen }
   | { tipo: "setTemaManual"; tema: IdTema }
   | { tipo: "irA"; momento: 1 | 2 | 3 | 4 }
   | { tipo: "reiniciar" };
@@ -49,6 +50,8 @@ function reducer(estado: EstadoApp, accion: Accion): EstadoApp {
       return { ...estado, restriccionEtica: accion.valor };
     case "setEstilo":
       return { ...estado, estilo: accion.valor };
+    case "setTipoImagen":
+      return { ...estado, tipoImagen: accion.valor };
     case "setTemaManual":
       return { ...estado, temaActivo: accion.tema, temaManual: true };
     case "irA":
@@ -139,10 +142,12 @@ function App() {
             decision={estado.decision}
             restriccionEtica={estado.restriccionEtica}
             estilo={estado.estilo}
+            tipoImagen={estado.tipoImagen}
             onAudienciaChange={(valor) => dispatch({ tipo: "setAudiencia", valor })}
             onDecisionChange={(valor) => dispatch({ tipo: "setDecision", valor })}
             onRestriccionChange={(valor) => dispatch({ tipo: "setRestriccion", valor })}
             onEstiloChange={(valor) => dispatch({ tipo: "setEstilo", valor })}
+            onTipoImagenChange={(valor) => dispatch({ tipo: "setTipoImagen", valor })}
             onSiguiente={() => dispatch({ tipo: "irA", momento: 4 })}
             onAtras={() => dispatch({ tipo: "irA", momento: 2 })}
           />

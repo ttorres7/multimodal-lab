@@ -1,4 +1,4 @@
-import type { EstadoApp, CaminoMultimodal } from "../types";
+import type { EstadoApp, CaminoMultimodal, TipoImagen } from "../types";
 
 export interface PiezaGenerada {
   prompt: string;
@@ -42,33 +42,122 @@ function construirEscenariosUso(estado: EstadoApp, camino: CaminoMultimodal): st
   ];
 }
 
+interface PlantillaImagen {
+  descripcionVisual: string;
+  criteriosEspecificos: string[];
+  notaPedagogica: string;
+}
+
+function obtenerPlantillaImagen(tipo: TipoImagen, estado: EstadoApp): PlantillaImagen {
+  const audiencia = estado.audiencia || "la audiencia";
+  const decision = estado.decision || "tomar la decisión";
+
+  if (tipo === "flujo") {
+    return {
+      descripcionVisual: `un DIAGRAMA DE FLUJO DE PROCESO que muestre cómo se mueve el trabajo paso a paso, de izquierda a derecha o de arriba abajo. Cada paso debe ser una caja o ícono claramente delimitado, conectado al siguiente con flechas. Marca explícitamente DÓNDE entra la IA y DÓNDE el humano supervisa, aprueba o decide. La supervisión humana NO puede ser un detalle pequeño — debe ser una caja del mismo tamaño que las demás. Composición horizontal o vertical, no circular ni abstracta.`,
+      criteriosEspecificos: [
+        "¿La secuencia de pasos se entiende sin necesidad de explicar?",
+        "¿Las cajas de IA y de humano tienen el mismo peso visual?",
+        "¿Las flechas dejan claro qué es entrada y qué es salida en cada paso?",
+      ],
+      notaPedagogica: "Esto es un flujo de proceso: lo lees como receta, paso por paso.",
+    };
+  }
+
+  if (tipo === "antes_despues") {
+    return {
+      descripcionVisual: `una COMPARACIÓN VISUAL ANTES / DESPUÉS dividida en dos mitades claramente separadas. La mitad IZQUIERDA muestra el proceso ACTUAL (manual, lento, con cuellos de botella visibles, personas frustradas si aplica). La mitad DERECHA muestra el proceso CON IA (más fluido, con menos pasos, con la persona ahora en rol de supervisión y no de operación). Las dos mitades deben ser visualmente equivalentes (mismo estilo, misma escala) para que la comparación sea justa, no propagandística. Una línea vertical o un espacio en blanco las separa. Etiquetas mínimas: "Antes" / "Después" o "Hoy" / "Con IA".`,
+      criteriosEspecificos: [
+        "¿Las dos mitades son visualmente comparables (mismo estilo, misma escala)?",
+        "¿El 'después' muestra al humano en otro rol, no eliminado?",
+        "¿Se entiende qué cambió sin necesidad de explicar?",
+      ],
+      notaPedagogica: "Esto es un antes/después: lo usa quien necesita convencer del cambio.",
+    };
+  }
+
+  if (tipo === "roles") {
+    return {
+      descripcionVisual: `un MAPA DE ROLES Y RESPONSABILIDADES tipo organigrama o tabla visual. Muestra de forma clara qué actor hace qué cosa: la IA, el operario, el supervisor, el aprobador final. Cada rol debe tener un ícono o avatar simple y una franja con sus tareas listadas en pocas palabras. La estructura puede ser una tabla de tres o cuatro columnas (un actor por columna) o un esquema RACI simplificado. Lo crítico: que se vea quién DECIDE, quién EJECUTA, quién SUPERVISA. Sin jerarquía dramática — todos los actores tienen presencia visual equilibrada.`,
+      criteriosEspecificos: [
+        "¿Se entiende quién DECIDE, quién EJECUTA y quién SUPERVISA sin ambigüedad?",
+        "¿La IA aparece como un actor más, no como una caja externa flotante?",
+        "¿Cada rol tiene tareas concretas, no genéricas tipo 'gestiona'?",
+      ],
+      notaPedagogica: "Esto es un mapa de roles: lo usa quien necesita responsabilidades sin ambigüedad.",
+    };
+  }
+
+  if (tipo === "timeline") {
+    return {
+      descripcionVisual: `una LÍNEA DE TIEMPO HORIZONTAL DE IMPLEMENTACIÓN que muestre las fases de despliegue del proyecto en el tiempo. Eje horizontal: meses o sprints (Mes 1, Mes 2, Mes 3 o similar). Sobre la línea: hitos clave con un ícono o caja por hito (ej: "Piloto con un equipo", "Capacitación", "Despliegue completo", "Primera evaluación"). Debajo de cada hito, una línea de descripción muy breve. Los hitos donde el humano valida deben estar marcados con un ícono o color distintivo. Total: 4 a 6 hitos, no más. Composición limpia, sin sobrecargar la línea de tiempo con detalles.`,
+      criteriosEspecificos: [
+        "¿La línea de tiempo es realista o promete demasiado en poco tiempo?",
+        "¿Los hitos de validación humana están marcados visualmente?",
+        "¿Hay máximo 4-6 hitos o se siente sobrecargada?",
+      ],
+      notaPedagogica: "Esto es una línea de tiempo: lo usa quien necesita proyectar viabilidad.",
+    };
+  }
+
+  return {
+    descripcionVisual: `un DIAGRAMA DE IMPACTO Y MÉTRICAS que muestre, de forma visual, qué indicadores cambian con el proyecto y en qué orden. Estructura sugerida: 3 a 5 métricas clave (ej: tiempo de respuesta, costo operativo, satisfacción, errores, volumen procesado), cada una con un valor "antes" y un valor "después/objetivo". Puede ser una serie de tarjetas con números grandes, o un gráfico de barras horizontales con la diferencia destacada. Las flechas o íconos indican si la métrica sube o baja. Una etiqueta visual señala cuál métrica es la PRIMERA en moverse y cuál es la consecuencia. Sobrio, no sensacionalista.`,
+    criteriosEspecificos: [
+      "¿Las métricas son específicas y medibles, no genéricas tipo 'eficiencia'?",
+      "¿Se entiende qué métrica se mueve primero y cuáles son consecuencia?",
+      "¿Los números son realistas o suenan a promesa de vendedor?",
+    ],
+    notaPedagogica: "Esto es un diagrama de impacto: lo usa quien necesita defender el ROI.",
+  };
+}
+
+const ETIQUETAS_TIPO: Record<TipoImagen, string> = {
+  flujo: "Flujo de proceso",
+  antes_despues: "Antes / Después",
+  roles: "Mapa de roles",
+  timeline: "Línea de tiempo de implementación",
+  impacto: "Diagrama de impacto",
+};
+
 export function construirPromptImagen(estado: EstadoApp): PiezaGenerada {
-  const { proceso, audiencia, decision, restriccionEtica, estilo } = estado;
+  const { proceso, audiencia, decision, restriccionEtica, estilo, tipoImagen } = estado;
+
+  const tipoActivo: TipoImagen = tipoImagen ?? "flujo";
+  const plantilla = obtenerPlantillaImagen(tipoActivo, estado);
+  const etiquetaTipo = ETIQUETAS_TIPO[tipoActivo];
 
   const prompt = `[CONTEXTO]
 Proceso real: ${proceso.trim()}
 Audiencia: ${audiencia || "gerencia"}
 Decisión que debe provocar: ${decision || "comprender el flujo"}
+Tipo de imagen: ${etiquetaTipo}
+Estilo visual: ${estilo || "minimalista ejecutivo"}
 
 [PIEZA]
-Genera una imagen ${estilo || "minimalista ejecutiva"} que muestre el proceso descrito, con énfasis en el punto donde la IA y el humano colaboran. La composición debe leerse en menos de 5 segundos.
+Genera ${plantilla.descripcionVisual}
+
+Estilo visual general: ${estilo || "minimalista ejecutivo"}. La composición debe leerse en menos de 5 segundos.
 
 [REGLAS]
 ${restriccionLinea(restriccionEtica)}
 - Evita estética futurista genérica: nada de azul cyan brillante, hologramas, manos robóticas tocando pantallas, ni fondos abstractos tipo "red neuronal".
-- Debe ser visible al menos un punto de supervisión humana (una persona revisando, aprobando o validando).
+- Debe ser visible al menos un punto de supervisión humana.
 - Composición clara y legible para proyección en sala de reunión.
 - IDIOMA: cualquier texto, etiqueta, palabra o frase dentro de la imagen DEBE estar en ESPAÑOL. NO en inglés bajo ninguna circunstancia, ni siquiera palabras como "Approve", "Validate", "AI", "Process". Si necesitas etiquetas, usa "Aprobar", "Validar", "IA", "Proceso".
-- Sin texto incrustado en la imagen, salvo etiquetas mínimas en español si son necesarias para la lectura del flujo.`;
+- Sin texto incrustado en la imagen, salvo etiquetas mínimas en español si son necesarias para la lectura visual.
 
-  const criterios = [
+[NOTA]
+${plantilla.notaPedagogica}`;
+
+  const criteriosBase = [
     "¿La imagen comunica el proceso sin necesidad de leer texto largo?",
     "¿La supervisión humana es visible y no quedó como mero detalle decorativo?",
     "¿Está libre del cliché visual de IA (azul cyan, hologramas, robots)?",
     "¿Todo el texto que aparece en la imagen está en español?",
     `¿Funciona como apoyo concreto para que ${audiencia || "la audiencia"} pueda ${decision || "tomar la decisión"}?`,
-    "¿Qué cambiarías si tuvieras que mostrarla a alguien fuera de tu industria?",
   ];
+
+  const criterios = [...plantilla.criteriosEspecificos, ...criteriosBase];
 
   return {
     prompt,
@@ -264,12 +353,12 @@ function construirGuionVoz(estado: EstadoApp): string {
     audiencia !== "";
 
   const verContarles = esPlural ? "contarles" : "contarte";
-  const traer = esPlural ? "traer" : "traer";
+  const traer = "traer";
   const proponer = esPlural ? "Les propongo" : "Te propongo";
   const pronombreObjeto = esPlural ? "les" : "te";
 
   const cierreDecision = (() => {
-    if (!decision) return esPlural ? "Necesito una decisión hoy." : "Necesito una decisión hoy.";
+    if (!decision) return "Necesito una decisión hoy.";
     const d = decision.toLowerCase();
     if (d.includes("aprobar"))
       return esPlural
@@ -303,7 +392,9 @@ function construirGuionVoz(estado: EstadoApp): string {
 ${procesoLimpio}
 
 <break time="0.8s"/>
+
 La pregunta que ${pronombreObjeto} quiero ${traer} no es si la inteligencia artificial puede ayudar. Es dónde queda la supervisión humana cuando la IA entra al proceso.
+
 <break time="0.6s"/>
 
 ${proponer} que veamos juntos un punto específico, lo decidamos, y avancemos. ${cierreDecision}`;
@@ -336,6 +427,9 @@ export function construirGuiaCompleta(
   partes.push(`**Proceso real:** ${estado.proceso.trim()}`);
   partes.push(``);
   partes.push(`**Camino elegido:** ${estado.camino}`);
+  if (estado.camino === "imagen" && estado.tipoImagen) {
+    partes.push(`**Tipo de imagen:** ${ETIQUETAS_TIPO[estado.tipoImagen]}`);
+  }
   partes.push(`**Audiencia:** ${estado.audiencia || "no definida"}`);
   partes.push(`**Decisión que busco provocar:** ${estado.decision || "no definida"}`);
   partes.push(`**Restricción ética:** ${estado.restriccionEtica.trim() || "no definida"}`);

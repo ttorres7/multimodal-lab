@@ -2,6 +2,8 @@ import type { IdTema } from "./lib/temas";
 
 export type CaminoMultimodal = "imagen" | "video" | "voz";
 
+export type TipoImagen = "flujo" | "antes_despues" | "roles" | "timeline" | "impacto";
+
 export type NumeroMomento = 1 | 2 | 3 | 4;
 
 export interface EstadoApp {
@@ -12,6 +14,7 @@ export interface EstadoApp {
   decision: string;
   restriccionEtica: string;
   estilo: string;
+  tipoImagen: TipoImagen | null;
   temaActivo: IdTema;
   temaManual: boolean;
 }
@@ -31,6 +34,7 @@ export const ESTADO_INICIAL: EstadoApp = {
   decision: "",
   restriccionEtica: "",
   estilo: "",
+  tipoImagen: null,
   temaActivo: "graphite",
   temaManual: false,
 };

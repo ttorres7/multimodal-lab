@@ -1,4 +1,4 @@
-import type { CaminoMultimodal } from "../types";
+import type { CaminoMultimodal, TipoImagen } from "../types";
 
 interface Props {
   camino: CaminoMultimodal;
@@ -6,10 +6,12 @@ interface Props {
   decision: string;
   restriccionEtica: string;
   estilo: string;
+  tipoImagen: TipoImagen | null;
   onAudienciaChange: (valor: string) => void;
   onDecisionChange: (valor: string) => void;
   onRestriccionChange: (valor: string) => void;
   onEstiloChange: (valor: string) => void;
+  onTipoImagenChange: (valor: TipoImagen) => void;
   onSiguiente: () => void;
   onAtras: () => void;
 }
@@ -53,6 +55,40 @@ const ESTILOS_POR_CAMINO: Record<CaminoMultimodal, string[]> = {
   ],
 };
 
+interface OpcionTipoImagen {
+  id: TipoImagen;
+  titulo: string;
+  cuando: string;
+}
+
+const TIPOS_IMAGEN: OpcionTipoImagen[] = [
+  {
+    id: "flujo",
+    titulo: "Flujo de proceso",
+    cuando: "cuando importa secuencia y supervisión humana",
+  },
+  {
+    id: "antes_despues",
+    titulo: "Antes / Después",
+    cuando: "cuando importa convencer del cambio",
+  },
+  {
+    id: "roles",
+    titulo: "Mapa de roles",
+    cuando: "cuando importa dejar claro responsabilidades",
+  },
+  {
+    id: "timeline",
+    titulo: "Línea de tiempo",
+    cuando: "cuando importa proyectar viabilidad",
+  },
+  {
+    id: "impacto",
+    titulo: "Diagrama de impacto",
+    cuando: "cuando importa defender el ROI",
+  },
+];
+
 function Momento03Refinamiento(props: Props) {
   const {
     camino,
@@ -60,16 +96,23 @@ function Momento03Refinamiento(props: Props) {
     decision,
     restriccionEtica,
     estilo,
+    tipoImagen,
     onAudienciaChange,
     onDecisionChange,
     onRestriccionChange,
     onEstiloChange,
+    onTipoImagenChange,
     onSiguiente,
     onAtras,
   } = props;
 
   const estilos = ESTILOS_POR_CAMINO[camino];
-  const puedeAvanzar = audiencia !== "" && decision !== "" && estilo !== "";
+  const requiereTipoImagen = camino === "imagen";
+  const puedeAvanzar =
+    audiencia !== "" &&
+    decision !== "" &&
+    estilo !== "" &&
+    (!requiereTipoImagen || tipoImagen !== null);
 
   return (
     <section
@@ -171,8 +214,75 @@ function Momento03Refinamiento(props: Props) {
         />
       </Pregunta>
 
+      {requiereTipoImagen && (
+        <Pregunta
+          numero="04"
+          titulo="¿Qué tipo de imagen necesitas?"
+          ayuda="Cada tipo responde a una pregunta directiva distinta. Elige según qué quieres argumentar, no según qué se ve más bonito."
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "8px" }}>
+            {TIPOS_IMAGEN.map((opcion) => {
+              const activo = opcion.id === tipoImagen;
+              return (
+                <button
+                  key={opcion.id}
+                  type="button"
+                  onClick={() => onTipoImagenChange(opcion.id)}
+                  style={{
+                    background: activo ? "var(--surface)" : "transparent",
+                    border: activo
+                      ? "1px solid var(--accent)"
+                      : "1px solid var(--border)",
+                    borderRadius: "8px",
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                    fontFamily: "inherit",
+                    color: "inherit",
+                    width: "100%",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!activo) {
+                      e.currentTarget.style.borderColor = "var(--text-secondary)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!activo) {
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }
+                  }}
+                >
+                  <p
+                    className="mono"
+                    style={{
+                      fontSize: "10px",
+                      color: activo ? "var(--accent)" : "var(--text-secondary)",
+                      letterSpacing: "0.05em",
+                      margin: "0 0 4px",
+                    }}
+                  >
+                    {opcion.cuando}
+                  </p>
+                  <h4
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      margin: 0,
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    {opcion.titulo}
+                  </h4>
+                </button>
+              );
+            })}
+          </div>
+        </Pregunta>
+      )}
+
       <Pregunta
-        numero="04"
+        numero={requiereTipoImagen ? "05" : "04"}
         titulo="¿Qué registro estético o sonoro?"
         ayuda={`Opciones específicas para el camino "${camino}".`}
       >
